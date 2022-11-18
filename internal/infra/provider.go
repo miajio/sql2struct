@@ -2,15 +2,17 @@ package infra
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"time"
+
+	"github.com/gangming/sql2struct/config"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var pool *sql.DB
 
-func InitDBMysql(dsn string) {
+func InitDB() {
 	var err error
-	pool, err = sql.Open("mysql", dsn)
+	pool, err = sql.Open(string(config.Cnf.DBType), config.Cnf.DSN)
 	if err != nil {
 		panic(err)
 	}
@@ -21,4 +23,7 @@ func InitDBMysql(dsn string) {
 }
 func GetDB() *sql.DB {
 	return pool
+}
+func Init() {
+	InitDB()
 }

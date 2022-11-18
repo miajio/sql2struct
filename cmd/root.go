@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/gangming/sql2struct/internal/service"
 	"os"
 
 	"github.com/gangming/sql2struct/config"
 	"github.com/gangming/sql2struct/internal/infra"
-	mysqlparser "github.com/gangming/sql2struct/internal/mysql"
 	"github.com/gangming/sql2struct/utils"
 	"github.com/spf13/cobra"
 )
@@ -14,8 +14,8 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "sql2struct",
-	Short: "sql2struct is a tool for generating golang struct from mysql database",
-	Long: `sql2struct is a tool for generating golang struct from mysql database.
+	Short: "sql2struct is a tool for generating golang struct from sql database",
+	Long: `sql2struct is a tool for generating golang struct from sql database.
 `,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
@@ -26,8 +26,9 @@ var rootCmd = &cobra.Command{
 			cmd.Help()
 			os.Exit(1)
 		}
-		infra.InitDBMysql(config.Cnf.DSN)
-		err := mysqlparser.Run()
+		infra.Init()
+		service.Init()
+		err := service.SqlDriver.Execute()
 		if err != nil {
 			fmt.Println(err.Error())
 		}
@@ -61,6 +62,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&config.Cnf.TablePrefix, "prefix", "p", "", "table prefixed with the table name")
 	rootCmd.PersistentFlags().BoolVarP(&config.Cnf.WithJsonTag, "with_json_tag", "j", true, "with json tag. default: true")
 	rootCmd.PersistentFlags().StringVarP(&config.Cnf.OutputDir, "output_dir", "o", "./model", "output dir. default: ./model")
+	rootCmd.PersistentFlags().StringVarP(&config.Cnf.DBType, "db_type", "d", "mysql", "db driver. default: mysql. support: mysql, postgre")
 	rootCmd.PersistentFlags().StringArrayVarP(&config.Cnf.Tables, "tables", "t", nil, "Need to generate tables, default is all tables. (eg: -t table1 -t table2)")
 
 	// Cobra also supports local flags, which will only run
